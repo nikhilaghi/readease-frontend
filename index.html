@@ -1471,9 +1471,9 @@
 
             </div>
 
-            <div id="error-message" class="message message-error"></div>
+<div id="error-message" class="message message-error" aria-live="assertive"></div>
+<div id="success-message" class="message message-success" aria-live="polite"></div>
 
-            <div id="success-message" class="message message-success"></div>
 
             <div class="card">
 
@@ -1511,6 +1511,7 @@
     <button class="btn-primary" id="speech-input-btn">🎤 Speak</button>
     <button class="btn-primary" id="simplify-btn">✨ Simplify Text</button>
     <button class="btn-secondary" id="reset-btn">↻ Reset</button>
+    <button class="btn-secondary" onclick="loadDemo()">📘 Try Demo Text</button>
 </div>
 
 
@@ -1640,7 +1641,15 @@
         errorBox.classList.add('show');
       });
 
-        
+        function loadDemo() {
+  const demoText =
+    "This intricately constructed paragraph demonstrates how complex academic language can overwhelm learners by combining long, multi-clause sentences, abstract terminology, and dense structure, making comprehension difficult without simplification.";
+
+  elements.inputText.value = demoText;
+  updateCharCount();
+  showSuccess("Demo text loaded! Click Simplify to continue.");
+}
+
 
         const elements = {
 
