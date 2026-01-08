@@ -1487,31 +1487,50 @@
 
                     </div>
 
-                    <div id="text-tab" class="tab-content active">
+<div id="text-tab" class="tab-content active">
 
-                        <div class="form-group">
+  <!-- TEXT INPUT -->
+  <div class="form-group">
+    <label class="form-label">
+      <span class="form-label-icon">✏️</span> Your Text
+    </label>
+    <textarea id="input-text" placeholder="Paste your text here..."></textarea>
+    <div class="char-counter" id="char-count">0 characters</div>
+  </div>
 
-                            <label class="form-label"><span class="form-label-icon">✏️</span> Your Text</label>
-                            <textarea id="input-text" placeholder="Paste your text here..."></textarea>
-                            <div class="char-counter" id="char-count">0 characters</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">
-                                <span class="form-label-icon">📊</span> Difficulty Level
-                            </label>
-
+  <!-- DIFFICULTY LEVEL -->
+  <div class="form-group">
+    <label class="form-label">
+      <span class="form-label-icon">📊</span> Difficulty Level
+    </label>
     <select id="level-select">
-        <option value="simple">Simple</option>
-        <option value="medium" selected>Medium</option>
+      <option value="simple">Simple</option>
+      <option value="medium" selected>Medium</option>
     </select>
-</div>
+  </div>
 
-<div class="button-group">
+  <!-- SIMPLIFICATION MODE -->
+  <div class="form-group">
+    <label class="form-label">
+      <span class="form-label-icon">🧩</span> Simplification Mode
+    </label>
+    <select id="mode-select">
+      <option value="summary" selected>Simplified Summary</option>
+      <option value="rewrite">Full Simplified Rewrite</option>
+    </select>
+    <div class="form-help">
+      Summary shortens the text. Rewrite simplifies the full paragraph.
+    </div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="button-group">
     <button class="btn-primary" id="speech-input-btn">🎤 Speak</button>
     <button class="btn-primary" id="simplify-btn">✨ Simplify Text</button>
     <button class="btn-secondary" id="reset-btn">↻ Reset</button>
     <button class="btn-secondary" onclick="loadDemo()">📘 Try Demo Text</button>
+  </div>
+
 </div>
 
 
@@ -2055,16 +2074,19 @@ function addFlashcard(word, meaning, example) {
             elements.loading.classList.add('show');
 
       try {
-    const level = document.getElementById("level-select").value;
+const level = document.getElementById("level-select").value;
+const mode = document.getElementById("mode-select").value;
 
-    const res = await fetch(`${API_BASE_URL}/process`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            text: textToProcess,
-            level: level
-        })
-    });
+const res = await fetch(`${API_BASE_URL}/process`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    text: textToProcess,
+    level: level,
+    mode: mode
+  })
+});
+
 
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
@@ -2156,6 +2178,10 @@ if (!data.key_ideas || data.key_ideas.length === 0) {
         elements.simplifyBtn.addEventListener('click', () => processText());
 
         elements.listenBtn.addEventListener('click', async () => {
+if (currentSimplifiedText.length > 1800) {
+  showError("Text too long for audio. Try Simple mode.");
+  return;
+}
 
             if (isProcessing || !currentSimplifiedText) return;
 
