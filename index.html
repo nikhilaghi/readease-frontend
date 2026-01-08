@@ -1445,22 +1445,27 @@
                         <div class="form-group">
 
                             <label class="form-label"><span class="form-label-icon">✏️</span> Your Text</label>
-
-                            <textarea id="input-text" placeholder="Paste your text here..." aria-describedby="char-count"></textarea>
-
+                            <textarea id="input-text" ...></textarea>
                             <div class="char-counter" id="char-count">0 characters</div>
-
                         </div>
 
-                        <div class="button-group">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="form-label-icon">📊</span> Difficulty Level
+                            </label>
 
-                            <button class="btn-primary" id="speech-input-btn" title="Dictate using your microphone">🎤 Speak</button>
+    <select id="level-select">
+        <option value="simple">Simple</option>
+        <option value="medium" selected>Medium</option>
+    </select>
+</div>
 
-                            <button class="btn-primary" id="simplify-btn">✨ Simplify</button>
+<div class="button-group">
+    <button class="btn-primary" id="speech-input-btn">🎤 Speak</button>
+    <button class="btn-primary" id="simplify-btn">✨ Simplify</button>
+    <button class="btn-secondary" id="reset-btn">↻ Reset</button>
+</div>
 
-                            <button class="btn-secondary" id="reset-btn">↻ Reset</button>
-
-                        </div>
 
                     </div>
 
@@ -1511,6 +1516,9 @@
                         <span class="output-header-title">Simplified Explanation</span>
 
                     </div>
+
+                    <div id="meta-info" style="font-size:13px;color:#6b7280;margin-bottom:8px;"></div>
+
 
                     <div class="output-content" id="simplified-text"></div>
 
@@ -1970,53 +1978,48 @@
 
             elements.loading.classList.add('show');
 
-            try {
+      try {
+    const level = document.getElementById("level-select").value;
 
-                const res = await fetch(`${API_BASE_URL}/process`, {
+    const res = await fetch(`${API_BASE_URL}/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            text: textToProcess,
+            level: level
+        })
+    });
 
-                    method: 'POST',
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
-                    headers: { 'Content-Type': 'application/json' },
+    const data = await res.json();
 
-                    body: JSON.stringify({ text: textToProcess })
+    currentSimplifiedText = data.simplified_text;
+    elements.simplifiedText.textContent = data.simplified_text;
+    document.getElementById("meta-info").textContent =
+  `⏱ ${data.reading_time_minutes} min read • 🎓 ${data.estimated_grade_level}`;
 
-                });
 
-                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+    elements.keyIdeas.innerHTML = '';
+    data.key_ideas.forEach(idea => {
+        const li = document.createElement('li');
+        li.className = 'idea-item';
+        li.innerHTML = `<span class="idea-icon">✓</span><span>${idea}</span>`;
+        elements.keyIdeas.appendChild(li);
+    });
 
-                const data = await res.json();
+    addToHistory(textToProcess, data);
+    elements.outputSection.classList.add('show');
+    showSuccess('Analysis complete!');
 
-                currentSimplifiedText = data.simplified_text;
+    setTimeout(() => {
+        window.scrollTo({ top: elements.outputSection.offsetTop - 100, behavior: 'smooth' });
+    }, 100);
 
-                elements.simplifiedText.textContent = data.simplified_text;
+} catch (err) {
+    showError(`Error: ${err.message}`);
+}
 
-                elements.keyIdeas.innerHTML = '';
-
-                data.key_ideas.forEach(idea => {
-
-                    const li = document.createElement('li');
-
-                    li.className = 'idea-item';
-
-                    li.innerHTML = `<span class="idea-icon">✓</span><span>${idea}</span>`;
-
-                    elements.keyIdeas.appendChild(li);
-
-                });
-
-                addToHistory(textToProcess, data);
-
-                elements.outputSection.classList.add('show');
-
-                showSuccess('Analysis complete!');
-
-                setTimeout(() => window.scrollTo({ top: elements.outputSection.offsetTop - 100, behavior: 'smooth' }), 100);
-
-            } catch (err) {
-
-                showError(`Error: ${err.message}`);
-
-            } finally {
 
                 elements.loading.classList.remove('show');
 
@@ -2036,7 +2039,7 @@
 
             }
 
-        }
+        
 
         elements.simplifyBtn.addEventListener('click', () => processText());
 
