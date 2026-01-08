@@ -511,6 +511,40 @@
             padding: 20px;
 
         }
+        .vocab-card {
+        background: var(--bg-secondary);
+        border-left: 4px solid var(--warning);
+        padding: 12px;
+        border-radius: 8px;
+         margin-bottom: 10px;
+        font-size: 14px;
+        }
+
+        .vocab-word {
+         font-weight: 700;
+         font-size: 15px;
+        }
+
+        .vocab-meaning {
+        margin-top: 4px;
+        }
+
+        .vocab-example {
+        font-style: italic;
+        color: var(--text-secondary);
+         margin-top: 4px;
+        }
+
+         .vocab-btn {
+         margin-top: 6px;
+          padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 6px;
+        background: var(--primary);
+        color: white;
+         border: none;
+         cursor: pointer;
+        }
 
         /* Tabs */
 
@@ -1356,6 +1390,7 @@
 
         }
 
+
     </style>
 
 </head>
@@ -1369,16 +1404,25 @@
             <div class="header-content">
 
                 <div class="header-left">
-                    <img
-  src="https://i.ibb.co/BKNF2Kbn/Chat-GPT-Image-Jan-7-2026-05-26-12-PM.png"
-  alt="ReadEase Logo"
-  style="max-width:100px;height:auto;display:block;margin-bottom:6px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));"
-/>
-                    <div class="app-logo"> ReadEase</div>
+  <img
+    src="https://i.ibb.co/BKNF2Kbn/Chat-GPT-Image-Jan-7-2026-05-26-12-PM.png"
+    alt="ReadEase Logo"
+    style="max-width:100px;height:auto;display:block;margin-bottom:6px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));"
+  />
 
-                    <div class="app-tagline">AI-Powered Learning</div>
+  <div class="app-logo">ReadEase</div>
 
-                </div>
+  <div class="app-tagline">AI-Powered Learning</div>
+
+  <p style="font-size:14px;color:#6b7280;margin-top:4px;">
+    Helping students understand complex text faster and more accessibly.
+  </p>
+
+  <span style="font-size:11px;color:#6b7280;">
+    Powered by AI • Built for Inclusive Education
+  </span>
+</div>
+
 
                 <div class="header-right">
 
@@ -1395,6 +1439,9 @@
                 <strong>How to use ReadEase:</strong>
                 Paste text or upload a document → click <b>Simplify</b> → read or listen in an accessible format.
             </div>
+            <p style="font-size:13px;color:#374151;">
+              Ideal for students, readers with dyslexia, and anyone learning complex subjects.
+        </p>
 
             <div class="accessibility-panel">
 
@@ -1445,7 +1492,7 @@
                         <div class="form-group">
 
                             <label class="form-label"><span class="form-label-icon">✏️</span> Your Text</label>
-                            <textarea id="input-text" ...></textarea>
+                            <textarea id="input-text" placeholder="Paste your text here..."></textarea>
                             <div class="char-counter" id="char-count">0 characters</div>
                         </div>
 
@@ -1462,7 +1509,7 @@
 
 <div class="button-group">
     <button class="btn-primary" id="speech-input-btn">🎤 Speak</button>
-    <button class="btn-primary" id="simplify-btn">✨ Simplify</button>
+    <button class="btn-primary" id="simplify-btn">✨ Simplify Text</button>
     <button class="btn-secondary" id="reset-btn">↻ Reset</button>
 </div>
 
@@ -1513,7 +1560,7 @@
 
                         <span class="output-header-icon">📖</span>
 
-                        <span class="output-header-title">Simplified Explanation</span>
+                        <span class="output-header-title">Simplified Text</span>
 
                     </div>
 
@@ -1535,6 +1582,17 @@
                     <ul class="ideas-list" id="key-ideas"></ul>
 
                     <button class="copy-btn" id="copy-keys">📋 Copy</button>
+
+                    <div class="output-header" style="margin-top: 20px;">
+
+                     <span class="output-header-icon">🧠</span>
+
+                     <span class="output-header-title">Daily 5 Words</span>
+
+                    </div>
+
+                    <div id="vocab-list"></div>
+
 
                     <div class="output-header" style="margin-top: 20px;">
 
@@ -1573,12 +1631,8 @@
 
     <script>
 
-
-
-    // Production backend deployed on Render
     const API_BASE_URL = 'https://readease-backend.onrender.com';
 
-    // Backend health check (Render may sleep)
     fetch(API_BASE_URL)
       .catch(() => {
         const errorBox = document.getElementById('error-message');
@@ -1731,6 +1785,19 @@
             setTimeout(() => elements.successMessage.classList.remove('show'), 3000);
 
         }
+
+function addFlashcard(word, meaning, example) {
+  let cards = JSON.parse(localStorage.getItem("readease-flashcards")) || [];
+
+  if (cards.some(c => c.word === word)) {
+    showSuccess(`"${word}" is already saved`);
+    return;
+  }
+
+  cards.push({ word, meaning, example });
+  localStorage.setItem("readease-flashcards", JSON.stringify(cards));
+  showSuccess("Added to flashcards!");
+}
 
         function addToHistory(input, output) {
 
@@ -1993,20 +2060,56 @@
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
     const data = await res.json();
+    
+const vocabContainer = document.getElementById("vocab-list");
+vocabContainer.innerHTML = "";
+
+if (data.vocabulary && data.vocabulary.length > 0) {
+  data.vocabulary.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "vocab-card";
+
+    div.innerHTML = `
+      <div class="vocab-word">${item.word}</div>
+      <div class="vocab-meaning"><b>Meaning:</b> ${item.meaning}</div>
+      <div class="vocab-example"><b>Example:</b> ${item.example}</div>
+    `;
+
+    const btn = document.createElement("button");
+    btn.className = "vocab-btn";
+    btn.textContent = "⭐ Add to Flashcards";
+    btn.onclick = () => addFlashcard(item.word, item.meaning, item.example);
+
+    div.appendChild(btn);
+    vocabContainer.appendChild(div);
+  });
+} else {
+  vocabContainer.innerHTML =
+    "<p style='font-size:13px;color:#6b7280;'>No difficult words detected.</p>";
+}
 
     currentSimplifiedText = data.simplified_text;
     elements.simplifiedText.textContent = data.simplified_text;
     document.getElementById("meta-info").textContent =
-  `⏱ ${data.reading_time_minutes} min read • 🎓 ${data.estimated_grade_level}`;
+ `⏱ ${data.reading_time_minutes} min read • 🎓 ${data.estimated_grade_level} • ♿ Accessible`
 
 
-    elements.keyIdeas.innerHTML = '';
-    data.key_ideas.forEach(idea => {
-        const li = document.createElement('li');
-        li.className = 'idea-item';
-        li.innerHTML = `<span class="idea-icon">✓</span><span>${idea}</span>`;
-        elements.keyIdeas.appendChild(li);
-    });
+
+elements.keyIdeas.innerHTML = '';
+
+if (!data.key_ideas || data.key_ideas.length === 0) {
+  elements.keyIdeas.innerHTML =
+    "<li style='font-size:13px;color:#6b7280;'>No key ideas detected.</li>";
+} else {
+  data.key_ideas.forEach(idea => {
+    const li = document.createElement('li');
+    li.className = 'idea-item';
+    li.innerHTML = `<span class="idea-icon">✓</span><span>${idea}</span>`;
+    elements.keyIdeas.appendChild(li);
+  });
+}
+
+
 
     addToHistory(textToProcess, data);
     elements.outputSection.classList.add('show');
@@ -2017,7 +2120,7 @@
     }, 100);
 
 } catch (err) {
-    showError(`Error: ${err.message}`);
+    showError('Something went wrong. Please try again in a moment.');
 }
 
 
@@ -2230,6 +2333,8 @@
         });
 
         elements.resetBtn.addEventListener('click', () => {
+            
+            document.getElementById("vocab-list").innerHTML = "";
 
             elements.inputText.value = '';
 
@@ -2344,6 +2449,9 @@
         });
 
     </script>
+     <footer style="text-align:center;font-size:11px;color:#6b7280;padding:16px;">
+      © 2026 ReadEase • Microsoft Imagine Cup Project
+    </footer>
 </body>
 </html>
 
