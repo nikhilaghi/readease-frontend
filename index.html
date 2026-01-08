@@ -27,14 +27,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        .how-to-use {
-  background: #e8f2fb;
-  border-left: 4px solid #0078D4;
+
+.how-to-use {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-left: 4px solid var(--primary);
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 14px;
   margin-bottom: 16px;
+  line-height: 1.6;
 }
+.how-to-subtext {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+/* Dark mode refinement */
+body.dark-mode .how-to-use {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* High contrast mode */
+body.high-contrast .how-to-use {
+  background: #000 !important;
+  color: #fff !important;
+  border-left-color: #ffff00 !important;
+}
+
 
 
         @import url('https://fonts.cdnfonts.com/css/opendyslexic');
@@ -546,6 +568,24 @@
          cursor: pointer;
         }
 
+/* Highlight Mode */
+.highlight-yellow {
+  background-color: #fff3b0;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.highlight-red {
+  color: #b00020;
+  font-weight: 600;
+}
+
+.highlight-blue {
+  background-color: #e3f2fd;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
         /* Tabs */
 
         .tabs {
@@ -659,31 +699,25 @@
             margin-top: 4px;
 
         }
+textarea,
+input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
 
-        textarea, input[type="file"] {
+  /* ✅ Accessibility inheritance */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.7;
 
-            width: 100%;
+  color: var(--text-primary);
+  background: var(--bg-primary);
 
-            padding: 12px;
+  transition: var(--transition-fast);
+  resize: vertical;
+}
 
-            border: 2px solid var(--border);
-
-            border-radius: 8px;
-
-            font-family: 'Inter', sans-serif;
-
-            font-size: 1em;
-
-
-            color: var(--text-primary);
-
-            background: var(--bg-primary);
-
-            transition: var(--transition-fast);
-
-            resize: vertical;
-
-        }
 
         textarea:focus, input[type="file"]:focus {
 
@@ -1438,10 +1472,12 @@
             <div class="how-to-use">
                 <strong>How to use ReadEase:</strong>
                 Paste text or upload a document → click <b>Simplify</b> → read or listen in an accessible format.
+        
             </div>
-            <p style="font-size:13px;color:#374151;">
-              Ideal for students, readers with dyslexia, and anyone learning complex subjects.
-        </p>
+<p class="how-to-subtext">
+  Ideal for students, readers with dyslexia, and anyone learning complex subjects.
+</p>
+
 
             <div class="accessibility-panel">
 
@@ -1586,6 +1622,13 @@
 
                     <div id="meta-info" style="font-size:13px;color:#6b7280;margin-bottom:8px;"></div>
 
+<!-- Highlight Mode Toggle -->
+<div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+  <input type="checkbox" id="highlight-toggle">
+  <label for="highlight-toggle" style="font-size:13px;cursor:pointer;">
+    🎨 Highlight Mode (Study View)
+  </label>
+</div>
 
                     <div class="output-content" id="simplified-text"></div>
 
@@ -1725,6 +1768,42 @@
         let isProcessing = false;
 
         let currentSimplifiedText = '';
+        
+        let highlightMode = false;
+        function renderHighlightedText(text) {
+  let highlighted = text;
+
+
+  const ideas = Array.from(
+    document.querySelectorAll('.idea-item span')
+  ).map(el => el.textContent.trim());
+
+  ideas.forEach(idea => {
+    const safeIdea = idea.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\b${safeIdea}\\b`, 'gi');
+    highlighted = highlighted.replace(
+      regex,
+      `<span class="highlight-yellow">$&</span>`
+    );
+  });
+
+
+  document.querySelectorAll('.vocab-word').forEach(el => {
+    const word = el.textContent.trim();
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    highlighted = highlighted.replace(
+      regex,
+      `<span class="highlight-red">$&</span>`
+    );
+  });
+
+  highlighted = highlighted.replace(
+    /^(.+?\.)/gm,
+    `<span class="highlight-blue">$1</span>`
+  );
+
+  return highlighted;
+}
 
         let selectedFile = null;
 
@@ -2119,8 +2198,11 @@ if (data.vocabulary && data.vocabulary.length > 0) {
     "<p style='font-size:13px;color:#6b7280;'>No difficult words detected.</p>";
 }
 
-    currentSimplifiedText = data.simplified_text;
-    elements.simplifiedText.textContent = data.simplified_text;
+currentSimplifiedText = data.simplified_text;
+
+elements.simplifiedText.textContent = currentSimplifiedText;
+
+
     document.getElementById("meta-info").textContent =
  `⏱ ${data.reading_time_minutes} min read • 🎓 ${data.estimated_grade_level} • ♿ Accessible`
 
@@ -2382,8 +2464,19 @@ if (currentSimplifiedText.length > 1800) {
             updateCharCount();
 
         });
+document.getElementById("highlight-toggle").addEventListener("change", (e) => {
+  highlightMode = e.target.checked;
+
+  if (highlightMode) {
+    elements.simplifiedText.innerHTML =
+      renderHighlightedText(currentSimplifiedText);
+  } else {
+    elements.simplifiedText.textContent = currentSimplifiedText;
+  }
+});
 
         elements.copySimplified.addEventListener('click', () => {
+
 
             navigator.clipboard.writeText(elements.simplifiedText.textContent);
 
@@ -2391,15 +2484,17 @@ if (currentSimplifiedText.length > 1800) {
 
         });
 
-        elements.copyKeys.addEventListener('click', () => {
+ elements.copyKeys.addEventListener('click', () => {
+  const text = Array.from(
+    elements.keyIdeas.querySelectorAll('.idea-item')
+  )
+    .map(li => li.textContent.replace('✓', '').trim())
+    .join('\n');
 
-            const text = Array.from(elements.keyIdeas.querySelectorAll('.idea-item')).map(li => li.textContent.replace('✓', '').trim()).join('\n');
+  navigator.clipboard.writeText(text);
+  showSuccess('Copied to clipboard!');
+});
 
-            navigator.clipboard.writeText(text);
-
-            showSuccess('Copied to clipboard!');
-
-        });
 
         document.querySelectorAll('[data-size]').forEach(btn => {
 
