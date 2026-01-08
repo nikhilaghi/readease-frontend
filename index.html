@@ -1,0 +1,2322 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="ReadEase – AI-powered reading comprehension assistant for accessible learning. Winner of Microsoft Imagine Cup 2026.">
+
+    <meta name="theme-color" content="#0078D4">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>ReadEase – AI Reading Comprehension Assistant</title>
+
+    <link href="https://fonts.cdnfonts.com/css/opendyslexic" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        @import url('https://fonts.cdnfonts.com/css/opendyslexic');
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+
+            margin: 0;
+
+            padding: 0;
+
+            box-sizing: border-box;
+
+            -webkit-font-smoothing: antialiased;
+
+            -moz-osx-font-smoothing: grayscale;
+
+        }
+
+        :root {
+
+            --primary: #0078D4;
+
+            --primary-dark: #005A9E;
+
+            --primary-light: #36B9FF;
+
+            --accent: #107c10;
+
+            --error: #d83b01;
+
+            --warning: #ffb900;
+
+            --success: #107c10;
+
+            --text-primary: #1f2937;
+
+            --text-secondary: #6b7280;
+
+            --bg-primary: #ffffff;
+
+            --bg-secondary: #f9fafb;
+
+            --bg-tertiary: #f3f4f6;
+
+            --border: #e5e7eb;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+        }
+
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
+        body {
+
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            
+            font-size: var(--base-font-size, 15px);
+
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+            color: var(--text-primary);
+
+            line-height: 1.6;
+
+            min-height: 100vh;
+
+            padding: 0;
+
+            margin: 0;
+
+            transition: var(--transition);
+
+        }
+
+        body.dark-mode {
+
+            --text-primary: #f3f4f6;
+
+            --text-secondary: #d1d5db;
+
+            --bg-primary: #111827;
+
+            --bg-secondary: #1f2937;
+
+            --bg-tertiary: #374151;
+
+            --border: #4b5563;
+
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+
+        }
+
+        body.high-contrast {
+
+            --text-primary: #ffffff !important;
+
+            --text-secondary: #ffffff !important;
+
+            --bg-primary: #000000 !important;
+
+            --bg-secondary: #000000 !important;
+
+            --bg-tertiary: #000000 !important;
+
+            --border: #ffffff !important;
+
+            --primary: #ffff00;
+
+            background: #000000 !important;
+
+        }
+
+        .dyslexia {
+
+            font-family: 'OpenDyslexic', 'Inter', sans-serif;
+
+            letter-spacing: 0.05em;
+
+            word-spacing: 0.1em;
+
+        }
+
+  .font-small { --base-font-size: 13px; }
+.font-medium { --base-font-size: 15px; }
+.font-large { --base-font-size: 17px; }
+
+
+        /* Layout */
+
+        .page-wrapper {
+
+            min-height: 100vh;
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+        header {
+
+            background: var(--bg-primary);
+
+            border-bottom: 1px solid var(--border);
+
+            padding: 20px;
+
+            box-shadow: var(--shadow-sm);
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+
+        }
+
+        .header-content {
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+        }
+
+        .header-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            flex: 1;
+
+        }
+
+        .app-logo {
+
+            font-size: 28px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            font-weight: 700;
+
+            color: var(--primary);
+
+        }
+
+        .app-title {
+
+            font-size: 20px;
+
+            font-weight: 700;
+
+            color: var(--text-primary);
+
+            letter-spacing: -0.3px;
+
+        }
+
+        .app-tagline {
+
+            font-size: 11px;
+
+            color: var(--text-secondary);
+
+            font-weight: 500;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+            margin-left: 8px;
+
+            padding-left: 8px;
+
+            border-left: 2px solid var(--primary);
+
+        }
+
+        .header-right {
+
+            display: flex;
+
+            gap: 8px;
+
+            align-items: center;
+
+        }
+
+        .theme-toggle {
+
+            background: var(--bg-tertiary);
+
+            border: 1px solid var(--border);
+
+            color: var(--text-primary);
+
+            width: 36px;
+
+            height: 36px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 18px;
+
+            transition: var(--transition-fast);
+
+        }
+
+        .theme-toggle:hover {
+
+            background: var(--border);
+
+        }
+
+        main {
+
+            flex: 1;
+
+            max-width: 1000px;
+
+            width: 100%;
+
+            margin: 0 auto;
+
+            padding: 24px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 24px;
+
+        }
+
+        /* Accessibility Panel */
+
+        .accessibility-panel {
+
+            background: var(--bg-primary);
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            padding: 16px;
+
+            box-shadow: var(--shadow-sm);
+
+        }
+
+        .accessibility-title {
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            text-transform: uppercase;
+
+            color: var(--text-secondary);
+
+            letter-spacing: 0.5px;
+
+            margin-bottom: 12px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+        }
+
+        .accessibility-controls {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 12px;
+
+        }
+
+        .access-group {
+
+            display: flex;
+
+            gap: 8px;
+
+            align-items: center;
+
+        }
+
+        .access-btn {
+
+            background: var(--bg-tertiary);
+
+            border: 1px solid var(--border);
+
+            color: var(--text-primary);
+
+            padding: 8px 12px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            font-weight: 500;
+
+            transition: var(--transition-fast);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 4px;
+
+        }
+
+        .access-btn:hover {
+
+            background: var(--border);
+
+            border-color: var(--primary);
+
+        }
+
+        .access-btn.active {
+
+            background: var(--primary);
+
+            color: white;
+
+            border-color: var(--primary);
+
+        }
+
+        /* Card Styling */
+
+        .card {
+
+            background: var(--bg-primary);
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            box-shadow: var(--shadow-sm);
+
+            transition: var(--transition-fast);
+
+        }
+
+        .card:hover {
+
+            border-color: var(--primary);
+
+            box-shadow: var(--shadow-md);
+
+        }
+
+        .card-header {
+
+            padding: 20px;
+
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+        }
+
+        .card-header-icon {
+
+            font-size: 20px;
+
+        }
+
+        .card-header-title {
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            color: var(--text-primary);
+
+        }
+
+        .card-body {
+
+            padding: 20px;
+
+        }
+
+        /* Tabs */
+
+        .tabs {
+
+            display: flex;
+
+            gap: 0;
+
+            border-bottom: 2px solid var(--border);
+
+        }
+
+        .tab-button {
+
+            background: none;
+
+            border: none;
+
+            padding: 12px 16px;
+
+            color: var(--text-secondary);
+
+            cursor: pointer;
+
+            font-size: 1em;
+
+
+            font-weight: 500;
+
+            border-bottom: 3px solid transparent;
+
+            margin-bottom: -2px;
+
+            transition: var(--transition-fast);
+
+            position: relative;
+
+        }
+
+        .tab-button:hover {
+
+            color: var(--text-primary);
+
+        }
+
+        .tab-button.active {
+
+            color: var(--primary);
+
+            border-bottom-color: var(--primary);
+
+        }
+
+        .tab-content {
+
+            display: none;
+
+        }
+
+        .tab-content.active {
+
+            display: block;
+
+            animation: fadeIn 0.2s ease-out;
+
+        }
+
+        /* Forms */
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+
+            margin-bottom: 16px;
+
+        }
+
+        .form-label {
+
+            font-weight: 600;
+
+            font-size: 1em;
+
+
+            color: var(--text-primary);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+        }
+
+        .form-label-icon {
+
+            font-size: 16px;
+
+        }
+
+        .form-help {
+
+            font-size: 12px;
+
+            color: var(--text-secondary);
+
+            margin-top: 4px;
+
+        }
+
+        textarea, input[type="file"] {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: 2px solid var(--border);
+
+            border-radius: 8px;
+
+            font-family: 'Inter', sans-serif;
+
+            font-size: 1em;
+
+
+            color: var(--text-primary);
+
+            background: var(--bg-primary);
+
+            transition: var(--transition-fast);
+
+            resize: vertical;
+
+        }
+
+        textarea:focus, input[type="file"]:focus {
+
+            outline: none;
+
+            border-color: var(--primary);
+
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+
+        }
+
+        textarea {
+
+            min-height: 200px;
+
+            line-height: 1.6;
+
+        }
+
+        input[type="file"]::file-selector-button {
+
+            background: var(--primary);
+
+            color: white;
+
+            border: none;
+
+            padding: 8px 16px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+
+            margin-right: 12px;
+
+            transition: var(--transition-fast);
+
+        }
+
+        input[type="file"]::file-selector-button:hover {
+
+            background: var(--primary-dark);
+
+        }
+
+        .char-counter {
+
+            text-align: right;
+
+            font-size: 12px;
+
+            color: var(--text-secondary);
+
+        }
+
+        .file-info {
+
+            background: var(--bg-secondary);
+
+            border: 2px solid var(--success);
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            border-left: 4px solid var(--success);
+
+            font-size: 13px;
+
+            display: none;
+
+            margin-bottom: 12px;
+
+            animation: slideDown 0.2s ease-out;
+
+        }
+
+        .file-info.show {
+
+            display: block;
+
+        }
+
+        /* Buttons */
+
+        .button-group {
+
+            display: flex;
+
+            gap: 12px;
+
+            flex-wrap: wrap;
+
+            margin-top: 16px;
+
+        }
+
+        button {
+
+            padding: 12px 24px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 1em;
+
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: var(--transition-fast);
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        .btn-primary {
+
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+
+            color: white;
+
+            box-shadow: var(--shadow-md);
+
+        }
+
+        .btn-primary:hover:not(:disabled) {
+
+            transform: translateY(-2px);
+
+            box-shadow: var(--shadow-lg);
+
+        }
+
+        .btn-primary:active:not(:disabled) {
+
+            transform: translateY(0);
+
+        }
+
+        .btn-secondary {
+
+            background: var(--bg-tertiary);
+
+            color: var(--text-primary);
+
+            border: 1px solid var(--border);
+
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+
+            background: var(--border);
+
+        }
+
+        .btn-danger {
+
+            background: var(--error);
+
+            color: white;
+
+        }
+
+        .btn-danger:hover:not(:disabled) {
+
+            background: #b02d2d;
+
+        }
+
+        button:disabled {
+
+            opacity: 0.5;
+
+            cursor: not-allowed;
+
+        }
+
+        button:focus-visible {
+
+            outline: 2px solid var(--primary);
+
+            outline-offset: 2px;
+
+        }
+
+        .spinner {
+
+            display: inline-block;
+
+            width: 14px;
+
+            height: 14px;
+
+            border: 2px solid rgba(0, 0, 0, 0.1);
+
+            border-top: 2px solid var(--primary);
+
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+
+        }
+
+        @keyframes spin {
+
+            to { transform: rotate(360deg); }
+
+        }
+
+        @keyframes fadeIn {
+
+            from { opacity: 0; }
+
+            to { opacity: 1; }
+
+        }
+
+        @keyframes slideDown {
+
+            from { opacity: 0; transform: translateY(-8px); }
+
+            to { opacity: 1; transform: translateY(0); }
+
+        }
+
+        /* Messages */
+
+        .message {
+
+            padding: 12px 16px;
+
+            border-radius: 8px;
+
+            border-left: 4px solid;
+
+            font-size: 1em;
+
+
+            font-weight: 500;
+
+            display: none;
+
+            animation: slideDown 0.2s ease-out;
+
+            margin-bottom: 16px;
+
+        }
+
+        .message.show {
+
+            display: block;
+
+        }
+
+        .message-error {
+
+            background: rgba(216, 59, 1, 0.1);
+
+            color: var(--error);
+
+            border-left-color: var(--error);
+
+        }
+
+        .message-success {
+
+            background: rgba(16, 124, 16, 0.1);
+
+            color: var(--success);
+
+            border-left-color: var(--success);
+
+        }
+
+        /* Output Section */
+
+        .output-section {
+
+            display: none;
+
+        }
+
+        .output-section.show {
+
+            display: block;
+
+            animation: fadeIn 0.3s ease-out;
+
+        }
+
+        .output-header {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 16px;
+
+            padding-bottom: 12px;
+
+            border-bottom: 2px solid var(--border);
+
+        }
+
+        .output-header-icon {
+
+            font-size: 24px;
+
+        }
+
+        .output-header-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            color: var(--text-primary);
+
+        }
+
+        .output-content {
+
+            background: var(--bg-secondary);
+
+            padding: 16px;
+
+            border-radius: 8px;
+
+            border-left: 4px solid var(--primary);
+
+            line-height: 1.8;
+
+            white-space: pre-wrap;
+
+            word-wrap: break-word;
+
+            margin-bottom: 16px;
+
+        }
+
+        .ideas-list {
+
+            list-style: none;
+
+        }
+
+        .idea-item {
+
+            background: var(--bg-secondary);
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            border-left: 4px solid var(--success);
+
+            margin-bottom: 8px;
+
+            display: flex;
+
+            gap: 12px;
+
+            font-size: 1em;
+
+
+            line-height: 1.6;
+
+        }
+
+        .idea-icon {
+
+            color: var(--success);
+
+            font-weight: 700;
+
+            flex-shrink: 0;
+
+            margin-top: 2px;
+
+        }
+
+        .audio-controls {
+
+            display: flex;
+
+            gap: 12px;
+
+            align-items: center;
+
+            margin-top: 12px;
+
+        }
+
+        audio {
+
+            flex: 1;
+
+            height: 32px;
+
+            border-radius: 8px;
+
+            display: none;
+
+        }
+
+        audio.show {
+
+            display: block;
+
+        }
+
+        .copy-btn {
+
+            background: var(--bg-tertiary);
+
+            color: var(--text-primary);
+
+            border: 1px solid var(--border);
+
+            padding: 8px 12px;
+
+            font-size: 12px;
+
+            margin-top: 12px;
+
+        }
+
+        .copy-btn:hover {
+
+            background: var(--border);
+
+        }
+
+        /* History */
+
+        .history-section {
+
+            margin-top: 24px;
+
+            padding-top: 24px;
+
+            border-top: 2px solid var(--border);
+
+        }
+
+        .history-title {
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            color: var(--text-primary);
+
+            margin-bottom: 16px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+        .history-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+
+            gap: 12px;
+
+        }
+
+        .history-item {
+
+            background: var(--bg-secondary);
+
+            border: 1px solid var(--border);
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            transition: var(--transition-fast);
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            display: -webkit-box;
+
+            -webkit-line-clamp: 2;
+
+            -webkit-box-orient: vertical;
+
+        }
+
+        .history-item:hover {
+
+            background: var(--bg-tertiary);
+
+            border-color: var(--primary);
+
+            transform: translateY(-1px);
+
+        }
+
+        .history-empty {
+
+            text-align: center;
+
+            color: var(--text-secondary);
+
+            padding: 20px;
+
+            font-style: italic;
+
+            font-size: 14px;
+
+        }
+
+        /* Loading */
+
+        .loading {
+
+            text-align: center;
+
+            padding: 24px;
+
+            display: none;
+
+            color: var(--text-secondary);
+
+            font-weight: 500;
+
+        }
+
+        .loading.show {
+
+            display: block;
+
+        }
+
+        /* Responsive */
+
+        @media (max-width: 768px) {
+
+            body {
+
+                padding: 0;
+
+            }
+
+            header {
+
+                padding: 16px;
+
+            }
+
+            .header-content {
+
+                flex-direction: column;
+
+                gap: 12px;
+
+            }
+
+            .header-left {
+
+                width: 100%;
+
+            }
+
+            .app-title {
+
+                font-size: 18px;
+
+            }
+
+            .header-right {
+
+                width: 100%;
+
+                justify-content: flex-end;
+
+            }
+
+            main {
+
+                padding: 16px;
+
+            }
+
+            .button-group {
+
+                flex-direction: column;
+
+            }
+
+            button:not(.access-btn, .tab-button) {
+
+                width: 100%;
+
+            }
+
+            .accessibility-controls {
+
+                flex-direction: column;
+
+            }
+
+            .access-group {
+
+                flex-direction: column;
+
+                width: 100%;
+
+            }
+
+            .access-btn {
+
+                width: 100%;
+
+                justify-content: center;
+
+            }
+
+            .history-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .tabs {
+
+                flex-wrap: wrap;
+
+            }
+
+            .card-body {
+
+                padding: 16px;
+
+            }
+
+            .audio-controls {
+
+                flex-direction: column;
+
+            }
+
+            audio {
+
+                width: 100%;
+
+            }
+
+        }
+
+        @media print {
+
+            header, .accessibility-panel, button:not(#listen-btn), audio, .history-section {
+
+                display: none;
+
+            }
+
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            * {
+
+                animation-duration: 0.01ms !important;
+
+                animation-iteration-count: 1 !important;
+
+                transition-duration: 0.01ms !important;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body class="font-medium">
+
+    <div class="page-wrapper">
+
+        <header>
+
+            <div class="header-content">
+
+                <div class="header-left">
+                    <img
+  src="https://i.ibb.co/BKNF2Kbn/Chat-GPT-Image-Jan-7-2026-05-26-12-PM.png"
+  alt="ReadEase Logo"
+  style="max-width:100px;height:auto;display:block;margin-bottom:6px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));"
+/>
+                    <div class="app-logo"> ReadEase</div>
+
+                    <div class="app-tagline">AI-Powered Learning</div>
+
+                </div>
+
+                <div class="header-right">
+
+                    <button class="theme-toggle" id="dark-toggle" aria-label="Toggle Dark Mode" title="Dark Mode">🌙</button>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <main>
+
+            <div class="accessibility-panel">
+
+                <div class="accessibility-title">⚙️ Accessibility</div>
+
+                <div class="accessibility-controls">
+
+                    <div class="access-group">
+
+                        <button class="access-btn" data-size="small" aria-label="Small Font">A−</button>
+
+                        <button class="access-btn active" data-size="medium" aria-label="Medium Font">A</button>
+
+                        <button class="access-btn" data-size="large" aria-label="Large Font">A+</button>
+
+                    </div>
+
+                    <div class="access-group">
+
+                        <button class="access-btn" id="dyslexia-toggle" aria-label="Dyslexia Mode">Dyslexia</button>
+
+                        <button class="access-btn" id="contrast-toggle" aria-label="High Contrast">Contrast</button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div id="error-message" class="message message-error"></div>
+
+            <div id="success-message" class="message message-success"></div>
+
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="tabs">
+
+                        <button class="tab-button active" data-tab="text-tab">📝 Text</button>
+
+                        <button class="tab-button" data-tab="file-tab">📄 File</button>
+
+                    </div>
+
+                    <div id="text-tab" class="tab-content active">
+
+                        <div class="form-group">
+
+                            <label class="form-label"><span class="form-label-icon">✏️</span> Your Text</label>
+
+                            <textarea id="input-text" placeholder="Paste your text here..." aria-describedby="char-count"></textarea>
+
+                            <div class="char-counter" id="char-count">0 characters</div>
+
+                        </div>
+
+                        <div class="button-group">
+
+                            <button class="btn-primary" id="speech-input-btn" title="Dictate using your microphone">🎤 Speak</button>
+
+                            <button class="btn-primary" id="simplify-btn">✨ Simplify</button>
+
+                            <button class="btn-secondary" id="reset-btn">↻ Reset</button>
+
+                        </div>
+
+                    </div>
+
+                    <div id="file-tab" class="tab-content">
+
+                        <div class="form-group">
+
+                            <label class="form-label"><span class="form-label-icon">📤</span> Upload Document</label>
+
+                            <input type="file" id="file-input" accept=".pdf,.doc,.docx,.txt">
+
+                            <div class="form-help">PDF, Word, or Text files (Max 50MB)</div>
+
+                            <div class="file-info" id="file-info"></div>
+
+                        </div>
+
+                        <div class="button-group">
+
+                            <button class="btn-primary" id="process-file-btn">📄 Process</button>
+
+                            <button class="btn-secondary" id="clear-file-btn">✕ Clear</button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="loading" id="loading">
+
+                        <span class="spinner"></span>
+
+                        <span style="margin-left: 8px;">Processing your content...</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div id="output-section" class="card output-section">
+
+                <div class="card-body">
+
+                    <div class="output-header">
+
+                        <span class="output-header-icon">📖</span>
+
+                        <span class="output-header-title">Simplified Explanation</span>
+
+                    </div>
+
+                    <div class="output-content" id="simplified-text"></div>
+
+                    <button class="copy-btn" id="copy-simplified">📋 Copy</button>
+
+                    <div class="output-header" style="margin-top: 20px;">
+
+                        <span class="output-header-icon">💡</span>
+
+                        <span class="output-header-title">Key Ideas</span>
+
+                    </div>
+
+                    <ul class="ideas-list" id="key-ideas"></ul>
+
+                    <button class="copy-btn" id="copy-keys">📋 Copy</button>
+
+                    <div class="output-header" style="margin-top: 20px;">
+
+                        <span class="output-header-icon">🔊</span>
+
+                        <span class="output-header-title">Listen</span>
+
+                    </div>
+
+                    <div class="audio-controls">
+
+                        <button class="btn-primary" id="listen-btn">▶ Play Audio</button>
+
+                        <audio id="audio-player" controls></audio>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="history-section">
+
+                <div class="history-title">📜 Recent Analysis</div>
+
+                <div class="history-grid" id="history-list"></div>
+
+                <div class="history-empty" id="history-empty">No analysis history yet</div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+        const API_BASE_URL = 'https://readease-backend.onrender.com';
+
+        
+
+        const elements = {
+
+            inputText: document.getElementById('input-text'),
+
+            simplifyBtn: document.getElementById('simplify-btn'),
+
+            speechInputBtn: document.getElementById('speech-input-btn'),
+
+            resetBtn: document.getElementById('reset-btn'),
+
+            fileInput: document.getElementById('file-input'),
+
+            processFileBtn: document.getElementById('process-file-btn'),
+
+            clearFileBtn: document.getElementById('clear-file-btn'),
+
+            loading: document.getElementById('loading'),
+
+            outputSection: document.getElementById('output-section'),
+
+            simplifiedText: document.getElementById('simplified-text'),
+
+            keyIdeas: document.getElementById('key-ideas'),
+
+            listenBtn: document.getElementById('listen-btn'),
+
+            audioPlayer: document.getElementById('audio-player'),
+
+            errorMessage: document.getElementById('error-message'),
+
+            successMessage: document.getElementById('success-message'),
+
+            charCount: document.getElementById('char-count'),
+
+            historyList: document.getElementById('history-list'),
+
+            historyEmpty: document.getElementById('history-empty'),
+
+            copySimplified: document.getElementById('copy-simplified'),
+
+            copyKeys: document.getElementById('copy-keys'),
+
+            fileInfo: document.getElementById('file-info'),
+
+            darkToggle: document.getElementById('dark-toggle'),
+
+            dyslexiaToggle: document.getElementById('dyslexia-toggle'),
+
+            contrastToggle: document.getElementById('contrast-toggle'),
+
+        };
+
+        let isProcessing = false;
+
+        let currentSimplifiedText = '';
+
+        let selectedFile = null;
+
+        let history = JSON.parse(localStorage.getItem('readease-history')) || [];
+
+        let preferences = JSON.parse(localStorage.getItem('readease-prefs')) || {
+
+            fontSize: 'medium',
+
+            dyslexia: false,
+
+            highContrast: false,
+
+            darkMode: false
+
+        };
+
+        function applyPreferences() {
+
+            document.body.classList.remove('font-small', 'font-medium', 'font-large');
+
+            document.body.classList.add(`font-${preferences.fontSize}`);
+
+            if (preferences.dyslexia) document.body.classList.add('dyslexia');
+
+            if (preferences.highContrast) document.body.classList.add('high-contrast');
+
+            if (preferences.darkMode) document.body.classList.add('dark-mode');
+
+            updateAccessibilityButtons();
+
+        }
+
+        applyPreferences();
+
+        function savePreferences() {
+
+            localStorage.setItem('readease-prefs', JSON.stringify(preferences));
+
+        }
+
+        function updateAccessibilityButtons() {
+
+            document.querySelectorAll('[data-size]').forEach(btn => {
+
+                btn.classList.toggle('active', btn.dataset.size === preferences.fontSize);
+
+            });
+
+            elements.dyslexiaToggle.classList.toggle('active', preferences.dyslexia);
+
+            elements.contrastToggle.classList.toggle('active', preferences.highContrast);
+
+            elements.darkToggle.classList.toggle('active', preferences.darkMode);
+
+        }
+
+        function updateCharCount() {
+
+            elements.charCount.textContent = `${elements.inputText.value.length} characters`;
+
+        }
+
+        elements.inputText.addEventListener('input', updateCharCount);
+
+        function showError(msg) {
+
+            elements.errorMessage.textContent = msg;
+
+            elements.errorMessage.classList.add('show');
+
+            elements.successMessage.classList.remove('show');
+
+            setTimeout(() => elements.errorMessage.classList.remove('show'), 5000);
+
+        }
+
+        function showSuccess(msg) {
+
+            elements.successMessage.textContent = msg;
+
+            elements.successMessage.classList.add('show');
+
+            elements.errorMessage.classList.remove('show');
+
+            setTimeout(() => elements.successMessage.classList.remove('show'), 3000);
+
+        }
+
+        function addToHistory(input, output) {
+
+            history.unshift({
+
+                input,
+
+                output,
+
+                timestamp: new Date().toLocaleString()
+
+            });
+
+            if (history.length > 20) history.pop();
+
+            localStorage.setItem('readease-history', JSON.stringify(history));
+
+            renderHistory();
+
+        }
+
+        function renderHistory() {
+
+            elements.historyList.innerHTML = '';
+
+            if (history.length === 0) {
+
+                elements.historyEmpty.style.display = 'block';
+
+                return;
+
+            }
+
+            elements.historyEmpty.style.display = 'none';
+
+            history.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = 'history-item';
+
+                const preview = item.input.substring(0, 50).replace(/\n/g, ' ');
+
+                div.innerHTML = `<strong>Entry ${index + 1}</strong><br>${preview}${item.input.length > 50 ? '...' : ''}`;
+
+                div.addEventListener('click', () => {
+
+                    elements.inputText.value = item.input;
+
+                    elements.simplifiedText.textContent = item.output.simplified_text;
+
+                    currentSimplifiedText = item.output.simplified_text;
+
+                    elements.keyIdeas.innerHTML = '';
+
+                    item.output.key_ideas.forEach(idea => {
+
+                        const li = document.createElement('li');
+
+                        li.className = 'idea-item';
+
+                        li.innerHTML = `<span class="idea-icon">✓</span><span>${idea}</span>`;
+
+                        elements.keyIdeas.appendChild(li);
+
+                    });
+
+                    elements.outputSection.classList.add('show');
+
+                    updateCharCount();
+
+                    window.scrollTo({ top: elements.outputSection.offsetTop - 100, behavior: 'smooth' });
+
+                });
+
+                elements.historyList.appendChild(div);
+
+            });
+
+        }
+
+        renderHistory();
+
+        async function extractTextFromFile(file) {
+
+            const fileType = file.type;
+
+            if (fileType === 'text/plain') {
+
+                return new Promise((resolve, reject) => {
+
+                    const reader = new FileReader();
+
+                    reader.onload = (e) => resolve(e.target.result);
+
+                    reader.onerror = () => reject(new Error('Failed to read text file'));
+
+                    reader.readAsText(file);
+
+                });
+
+            }
+
+            if (fileType === 'application/pdf') {
+
+                return extractPDFText(file);
+
+            }
+
+            if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+
+                return extractDocText(file);
+
+            }
+
+            throw new Error('Unsupported file type');
+
+        }
+
+        function extractPDFText(file) {
+
+            return new Promise((resolve, reject) => {
+
+                const reader = new FileReader();
+
+                reader.onload = async (e) => {
+
+                    try {
+
+                        const script = document.createElement('script');
+
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+
+                        script.onload = async () => {
+
+                            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+                            const pdf = await pdfjsLib.getDocument(e.target.result).promise;
+
+                            let text = '';
+
+                            for (let i = 1; i <= Math.min(pdf.numPages, 100); i++) {
+
+                                const page = await pdf.getPage(i);
+
+                                const content = await page.getTextContent();
+
+                                text += content.items.map(item => item.str).join(' ') + '\n';
+
+                            }
+
+                            resolve(text);
+
+                        };
+
+                        document.head.appendChild(script);
+
+                    } catch (error) {
+
+                        reject(new Error('Failed to process PDF'));
+
+                    }
+
+                };
+
+                reader.readAsArrayBuffer(file);
+
+            });
+
+        }
+
+        function extractDocText(file) {
+
+            return new Promise((resolve, reject) => {
+
+                const reader = new FileReader();
+
+                reader.onload = async (e) => {
+
+                    try {
+
+                        const script = document.createElement('script');
+
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+
+                        script.onload = async () => {
+
+                            const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+
+                            resolve(result.value);
+
+                        };
+
+                        document.head.appendChild(script);
+
+                    } catch (error) {
+
+                        reject(new Error('Failed to process document'));
+
+                    }
+
+                };
+
+                reader.readAsArrayBuffer(file);
+
+            });
+
+        }
+
+        async function processText(text = null) {
+
+            const textToProcess = text || elements.inputText.value.trim();
+
+            if (!textToProcess) {
+
+                showError('Please enter some text or upload a file.');
+
+                return;
+
+            }
+
+            if (isProcessing) return;
+
+            
+
+            isProcessing = true;
+
+            elements.simplifyBtn.disabled = true;
+
+            elements.listenBtn.disabled = true;
+
+            elements.speechInputBtn.disabled = true;
+
+            elements.resetBtn.disabled = true;
+
+            elements.processFileBtn.disabled = true;
+
+            elements.clearFileBtn.disabled = true;
+
+            elements.errorMessage.classList.remove('show');
+
+            elements.outputSection.classList.remove('show');
+
+            elements.loading.classList.add('show');
+
+            try {
+
+                const res = await fetch(`${API_BASE_URL}/process`, {
+
+                    method: 'POST',
+
+                    headers: { 'Content-Type': 'application/json' },
+
+                    body: JSON.stringify({ text: textToProcess })
+
+                });
+
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+                const data = await res.json();
+
+                currentSimplifiedText = data.simplified_text;
+
+                elements.simplifiedText.textContent = data.simplified_text;
+
+                elements.keyIdeas.innerHTML = '';
+
+                data.key_ideas.forEach(idea => {
+
+                    const li = document.createElement('li');
+
+                    li.className = 'idea-item';
+
+                    li.innerHTML = `<span class="idea-icon">✓</span><span>${idea}</span>`;
+
+                    elements.keyIdeas.appendChild(li);
+
+                });
+
+                addToHistory(textToProcess, data);
+
+                elements.outputSection.classList.add('show');
+
+                showSuccess('Analysis complete!');
+
+                setTimeout(() => window.scrollTo({ top: elements.outputSection.offsetTop - 100, behavior: 'smooth' }), 100);
+
+            } catch (err) {
+
+                showError(`Error: ${err.message}`);
+
+            } finally {
+
+                elements.loading.classList.remove('show');
+
+                elements.simplifyBtn.disabled = false;
+
+                elements.listenBtn.disabled = false;
+
+                elements.speechInputBtn.disabled = false;
+
+                elements.resetBtn.disabled = false;
+
+                elements.processFileBtn.disabled = false;
+
+                elements.clearFileBtn.disabled = false;
+
+                isProcessing = false;
+
+            }
+
+        }
+
+        elements.simplifyBtn.addEventListener('click', () => processText());
+
+        elements.listenBtn.addEventListener('click', async () => {
+
+            if (isProcessing || !currentSimplifiedText) return;
+
+            isProcessing = true;
+
+            elements.listenBtn.disabled = true;
+
+            elements.loading.classList.add('show');
+
+            try {
+
+                const res = await fetch(`${API_BASE_URL}/speak`, {
+
+                    method: 'POST',
+
+                    headers: { 'Content-Type': 'application/json' },
+
+                    body: JSON.stringify({ text: currentSimplifiedText })
+
+                });
+
+                if (!res.ok) throw new Error(`Error: ${res.status}`);
+
+                const blob = await res.blob();
+
+                const audioUrl = URL.createObjectURL(blob);
+
+                elements.audioPlayer.src = audioUrl;
+
+                elements.audioPlayer.classList.add('show');
+
+                elements.audioPlayer.play();
+
+                showSuccess('Playing audio...');
+
+            } catch (err) {
+
+                showError(`Audio error: ${err.message}`);
+
+            } finally {
+
+                elements.loading.classList.remove('show');
+
+                elements.listenBtn.disabled = false;
+
+                isProcessing = false;
+
+            }
+
+        });
+
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            const recognition = new SpeechRecognition();
+
+            recognition.continuous = false;
+
+            recognition.interimResults = false;
+
+            recognition.lang = 'en-US';
+
+            
+
+            elements.speechInputBtn.addEventListener('click', () => {
+
+                recognition.start();
+
+                elements.speechInputBtn.textContent = '🎤 Listening...';
+
+            });
+
+            
+
+            recognition.onresult = (event) => {
+
+                const transcript = event.results[0][0].transcript;
+
+                elements.inputText.value += (elements.inputText.value ? ' ' : '') + transcript;
+
+                updateCharCount();
+
+                elements.speechInputBtn.textContent = '🎤 Speak';
+
+            };
+
+            
+
+            recognition.onerror = () => {
+
+                showError('Speech recognition failed');
+
+                elements.speechInputBtn.textContent = '🎤 Speak';
+
+            };
+
+        } else {
+
+            elements.speechInputBtn.style.display = 'none';
+
+        }
+
+        elements.fileInput.addEventListener('change', (e) => {
+
+            const file = e.target.files[0];
+
+            if (file) {
+
+                if (file.size > 50 * 1024 * 1024) {
+
+                    showError('File size exceeds 50MB');
+
+                    elements.fileInput.value = '';
+
+                    return;
+
+                }
+
+                selectedFile = file;
+
+                elements.fileInfo.textContent = `✓ ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+
+                elements.fileInfo.classList.add('show');
+
+            }
+
+        });
+
+        elements.processFileBtn.addEventListener('click', async () => {
+
+            if (!selectedFile) {
+
+                showError('Please select a file');
+
+                return;
+
+            }
+
+            if (isProcessing) return;
+
+            isProcessing = true;
+
+            elements.processFileBtn.disabled = true;
+
+            elements.clearFileBtn.disabled = true;
+
+            elements.loading.classList.add('show');
+
+            try {
+
+                const text = await extractTextFromFile(selectedFile);
+
+                if (!text.trim()) throw new Error('No text found in file');
+
+                await processText(text);
+
+            } catch (err) {
+
+                showError(`File error: ${err.message}`);
+
+            } finally {
+
+                elements.loading.classList.remove('show');
+
+                elements.processFileBtn.disabled = false;
+
+                elements.clearFileBtn.disabled = false;
+
+                isProcessing = false;
+
+            }
+
+        });
+
+        elements.clearFileBtn.addEventListener('click', () => {
+
+            elements.fileInput.value = '';
+
+            selectedFile = null;
+
+            elements.fileInfo.classList.remove('show');
+
+        });
+
+        elements.resetBtn.addEventListener('click', () => {
+
+            elements.inputText.value = '';
+
+            elements.outputSection.classList.remove('show');
+
+            elements.audioPlayer.pause();
+
+            elements.audioPlayer.src = '';
+
+            updateCharCount();
+
+        });
+
+        elements.copySimplified.addEventListener('click', () => {
+
+            navigator.clipboard.writeText(elements.simplifiedText.textContent);
+
+            showSuccess('Copied to clipboard!');
+
+        });
+
+        elements.copyKeys.addEventListener('click', () => {
+
+            const text = Array.from(elements.keyIdeas.querySelectorAll('.idea-item')).map(li => li.textContent.replace('✓', '').trim()).join('\n');
+
+            navigator.clipboard.writeText(text);
+
+            showSuccess('Copied to clipboard!');
+
+        });
+
+        document.querySelectorAll('[data-size]').forEach(btn => {
+
+            btn.addEventListener('click', () => {
+
+                const size = btn.dataset.size;
+
+                document.body.classList.remove('font-small', 'font-medium', 'font-large');
+
+                document.body.classList.add(`font-${size}`);
+
+                preferences.fontSize = size;
+
+                savePreferences();
+
+                updateAccessibilityButtons();
+
+            });
+
+        });
+
+        elements.dyslexiaToggle.addEventListener('click', function() {
+
+            document.body.classList.toggle('dyslexia');
+
+            preferences.dyslexia = document.body.classList.contains('dyslexia');
+
+            savePreferences();
+
+            updateAccessibilityButtons();
+
+        });
+
+        elements.contrastToggle.addEventListener('click', function() {
+
+            document.body.classList.toggle('high-contrast');
+
+            preferences.highContrast = document.body.classList.contains('high-contrast');
+
+            savePreferences();
+
+            updateAccessibilityButtons();
+
+        });
+
+        elements.darkToggle.addEventListener('click', function() {
+
+            document.body.classList.toggle('dark-mode');
+
+            preferences.darkMode = document.body.classList.contains('dark-mode');
+
+            savePreferences();
+
+            updateAccessibilityButtons();
+
+        });
+
+        document.querySelectorAll('.tab-button').forEach(btn => {
+
+            btn.addEventListener('click', () => {
+
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                btn.classList.add('active');
+
+                document.getElementById(btn.dataset.tab).classList.add('active');
+
+            });
+
+        });
+
+        elements.inputText.addEventListener('keydown', (e) => {
+
+            if (e.ctrlKey && e.key === 'Enter') {
+
+                processText();
+
+            }
+
+        });
+
+    </script>
+</body>
+</html>
+
