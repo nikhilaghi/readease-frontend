@@ -1598,6 +1598,7 @@ input[type="file"] {
                         </div>
 
                     </div>
+
 <div class="loading" id="loading">
   <span class="spinner"></span>
   <span style="margin-left: 8px;">Processing your content...</span>
@@ -1775,40 +1776,42 @@ This level of abstraction can create a paradox where learning becomes difficult 
         let currentSimplifiedText = '';
         
         let highlightMode = false;
-        function renderHighlightedText(text) {
+function renderHighlightedText(text) {
   let highlighted = text;
 
-
-  const ideas = Array.from(
-    document.querySelectorAll('.idea-item span')
-  ).map(el => el.textContent.trim());
-
-  ideas.forEach(idea => {
-    const safeIdea = idea.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`\\b${safeIdea}\\b`, 'gi');
-    highlighted = highlighted.replace(
-      regex,
-      `<span class="highlight-yellow">$&</span>`
-    );
-  });
-
-
+  // 1️⃣ Highlight vocabulary words (from rendered vocab cards)
   document.querySelectorAll('.vocab-word').forEach(el => {
     const word = el.textContent.trim();
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    const regex = new RegExp(`\\b(${word})\\b`, 'gi');
     highlighted = highlighted.replace(
       regex,
-      `<span class="highlight-red">$&</span>`
+      `<span class="highlight-red">$1</span>`
     );
   });
 
+  // 2️⃣ Highlight important academic keywords
+  const importantWords = [
+    "academic", "discourse", "complex", "comprehension",
+    "learning", "information", "cognitive", "processing"
+  ];
+
+  importantWords.forEach(word => {
+    const regex = new RegExp(`\\b(${word})\\b`, 'gi');
+    highlighted = highlighted.replace(
+      regex,
+      `<span class="highlight-yellow">$1</span>`
+    );
+  });
+
+  // 3️⃣ Safely highlight full sentences (no overlap, no break)
   highlighted = highlighted.replace(
-    /^(.+?\.)/gm,
-    `<span class="highlight-blue">$1</span>`
+    /(^|>)([^<>.!?]{30,180}[.!?])/g,
+    `$1<span class="highlight-blue">$2</span>`
   );
 
   return highlighted;
 }
+
 
         let selectedFile = null;
 
@@ -2209,6 +2212,11 @@ if (data.vocabulary && data.vocabulary.length > 0) {
 currentSimplifiedText = data.simplified_text;
 
 elements.simplifiedText.textContent = currentSimplifiedText;
+
+if (highlightMode) {
+  elements.simplifiedText.innerHTML =
+    renderHighlightedText(currentSimplifiedText);
+}
 
 
     document.getElementById("meta-info").textContent =
