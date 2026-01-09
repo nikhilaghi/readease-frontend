@@ -1398,6 +1398,17 @@ input[type="file"] {
 
             }
 
+              .btn-primary,
+  .btn-secondary {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+
+  textarea {
+    min-height: 180px;
+  }
+
+
         }
 
         @media print {
@@ -1474,6 +1485,11 @@ input[type="file"] {
                 Paste text or upload a document → click <b>Simplify</b> → read or listen in an accessible format.
         
             </div>
+
+            <p class="how-to-subtext">
+  ⚠️ ReadEase uses AI to simplify text. While it preserves meaning, results may occasionally vary and should be used as a learning aid — not a replacement for educators.
+</p>
+
 <p class="how-to-subtext">
   Ideal for students, readers with dyslexia, and anyone learning complex subjects.
 </p>
@@ -2168,6 +2184,10 @@ function addFlashcard(word, meaning, example) {
 const level = document.getElementById("level-select").value;
 const mode = document.getElementById("mode-select").value;
 
+let wakeupTimer = setTimeout(() => {
+  showError("⏳ Backend is waking up. This may take 10–20 seconds on first use.");
+}, 4000); // 4 seconds = sleep detected
+
 const res = await fetch(`${API_BASE_URL}/process`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -2176,6 +2196,9 @@ const res = await fetch(`${API_BASE_URL}/process`, {
     level: level,
   })
 });
+
+clearTimeout(wakeupTimer);
+
 
 
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
